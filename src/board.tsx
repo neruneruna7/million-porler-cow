@@ -48,8 +48,12 @@ export default function Board() {
     });
 
     async function porker() {
+        const num = parseInt(input_text);
         if (use_cards.length < 5) {
             alert("5枚以上のカードを選択してください");
+            return;
+        } else if (Number.isNaN(num)) {
+            alert("有効な数字を入力してください");
             return;
         }
         const board = await invoke<Response>("million_porker", {});
@@ -96,7 +100,6 @@ export default function Board() {
 
             <div className="ctr">
                 <button className='bu' onClick={porker}>POSTする</button>
-
                 <button className='bu' onClick={reset_card_state}>リセット</button>
                 <button className='bu' onClick={() => console.log(active, use_cards)}></button>
             </div>

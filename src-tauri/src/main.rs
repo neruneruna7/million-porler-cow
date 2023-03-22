@@ -87,11 +87,6 @@ fn million_porker() -> Response {
     println!("time: {:?}", instant.elapsed());
 
     porker::debug_judge_role(&role_count, total_num_of_atempt);
-    println!("score: {}", score);
-
-    println!("cpus: {}", num_cpus::get());
-    println!("py_cpus: {}", num_cpus::get_physical());
-
     Response::new(score, total_num_of_atempt, role_count)
 }
 
