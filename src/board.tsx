@@ -4,9 +4,15 @@ import './board.css';
 import { invoke } from "@tauri-apps/api/tauri";
 
 
+interface Request {
+    num_of_atempt: number,
+    use_cards: Array<number>,
+}
+
 interface Response {
     score: number,
     total_num_of_atempt: number,
+    time_ms: number,
     result: Result,
 }
 
@@ -29,10 +35,17 @@ export default function Board() {
     const [input_text, setInputEl] = useState("");
     const [ave_score, setAveScore] = useState(0.0);
     const [max_score, setMaxScore] = useState(0);
+    const [time, setTime] = useState(0);
+    const [request, setRequest] = useState<Request>({
+        num_of_atempt: 0,
+        use_cards: [],
+    });
+
 
     const [response, setResponse] = useState<Response>({
         score: 0,
         total_num_of_atempt: 0,
+        time_ms: 0,
         result: {
             nopair: 0,
             onepair: 0,
@@ -47,7 +60,7 @@ export default function Board() {
         }
     });
 
-    async function porker() {
+    async function porker(use_cards: Array<number>) {
         const num = parseInt(input_text);
         if (use_cards.length < 5) {
             alert("5枚以上のカードを選択してください");
@@ -56,7 +69,9 @@ export default function Board() {
             alert("有効な数字を入力してください");
             return;
         }
-        const board = await invoke<Response>("million_porker", {});
+        setRequest({ num_of_atempt: num, use_cards: use_cards });
+        console.log(request);
+        const board = await invoke<Response>("million_porker", { request: request });
         setResponse(board);
         setAveScore(response.score / response.total_num_of_atempt);
 
@@ -95,17 +110,18 @@ export default function Board() {
     return (
         <div className='board'>
             <h3>
-                <input value={input_text} onChange={(e) => setInputEl(e.target.value)} type="text" placeholder="試行回数:最大値100万" />
+                <input value={input_text} onChange={(e) => setInputEl(e.target.value)} type="text" placeholder="試行回数:最大値1000万" />
             </h3>
 
             <div className="ctr">
-                <button className='bu' onClick={porker}>POSTする</button>
+                <button className='bu' onClick={() => porker(use_cards)}>実行する</button>
                 <button className='bu' onClick={reset_card_state}>リセット</button>
                 <button className='bu' onClick={() => console.log(active, use_cards)}></button>
             </div>
             <div className='score'>
                 <h2>平均スコア！:{ave_score}</h2>
                 <h2>最大スコア！ :{max_score}</h2>
+                <h2>Rust側の処理時間 :{response.time_ms}ms</h2>
             </div>
             <div className='board-row'>
 

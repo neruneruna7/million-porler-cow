@@ -10,10 +10,9 @@ use std::time::Instant;
 mod porker;
 
 #[derive(Deserialize)]
-#[allow(non_snake_case)]
 pub struct Request {
-    num: u32,
-    useCards: Vec<u32>,
+    num_of_atempt: u32,
+    use_cards: Vec<u32>,
 }
 
 /// それぞれの役が何回出たか保持する構造体です．
@@ -40,15 +39,18 @@ struct ResultRole {
 pub struct Response {
     score: u32,
     total_num_of_atempt: u32,
+    time_ms: u128,
     result: ResultRole,
 }
 
 ///必要なデータを渡すと，レスポンスを生成します．
+// 処理時間(ミリ秒)を追加
 impl Response {
-    fn new(score: u32, total_num_of_atempt: u32, role_count: [u32; 10]) -> Response {
+    fn new(score: u32, total_num_of_atempt: u32, time_ms: u128, role_count: [u32; 10]) -> Response {
         Response {
             score,
             total_num_of_atempt,
+            time_ms,
             result: ResultRole {
                 nopair: role_count[0],
                 onepair: role_count[1],
@@ -72,22 +74,26 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn million_porker() -> Response {
+fn million_porker(request: Request) -> Response {
     //use_cards: Vec<u32>, num_of_atempt: u32
-    let use_cards = Card::all_cards_id();
-
+    //let use_cards = Card::all_cards_id();
+    println!("use_cards: {:?}", request.use_cards);
     let instant = Instant::now();
+
+    let use_cards = request.use_cards;
+    let num_of_atempt = request.num_of_atempt;
 
     let ResultData {
         role_count,
         score,
         total_num_of_atempt,
-    } = porker::million_porker_parallel(Arc::new(use_cards), 1_000_000).unwrap();
+    } = porker::million_porker_parallel(Arc::new(use_cards), num_of_atempt).unwrap();
 
+    let time_ms = instant.elapsed().as_millis();
     println!("time: {:?}", instant.elapsed());
 
     porker::debug_judge_role(&role_count, total_num_of_atempt);
-    Response::new(score, total_num_of_atempt, role_count)
+    Response::new(score, total_num_of_atempt, time_ms, role_count)
 }
 
 fn main() {
