@@ -13,9 +13,16 @@ edition = "2021"
 tauri-build = { version = "1.2", features = [] }
 
 [dependencies]
-tauri = { version = "1.2", features = ["shell-open"] }
+tauri = { version = "1.2", features = ["dialog-message", "shell-open"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+rand = "*"
+rustc-hash = "*"
+anyhow = "*"
+num_cpus = "*"
+num = "0.4.0"
+num-derive = "0.3.3"
+num-traits = "0.2.15"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

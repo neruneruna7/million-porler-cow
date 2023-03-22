@@ -1,0 +1,36 @@
+.board-row {
+    display: flex;
+}
+
+input {
+    width: 300px;
+    height: 40px;
+    font-size: 30px;
+}
+
+.ctr {
+    display: flex;
+    justify-content: center;
+}
+
+.score {
+    display: flex;
+    justify-content: center;
+}
+
+.score h2 {
+    margin: 20px;
+}
+
+.role_row {
+    display: flex;
+    justify-content: center;
+}
+
+.role_row li {
+    margin: 10px;
+}
+
+.board {
+    margin: auto;
+}

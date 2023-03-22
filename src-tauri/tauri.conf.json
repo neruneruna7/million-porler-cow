@@ -16,6 +16,14 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "dialog": {
+        "all": false,
+        "ask": false,
+        "confirm": false,
+        "message": true,
+        "open": false,
+        "save": false
       }
     },
     "bundle": {
@@ -27,7 +35,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.tauri.million-porler-cow",
       "targets": "all"
     },
     "security": {
@@ -41,8 +49,8 @@
         "fullscreen": false,
         "resizable": true,
         "title": "million-porler-cow",
-        "width": 800,
-        "height": 600
+        "width": 1600,
+        "height": 1200
       }
     ]
   }

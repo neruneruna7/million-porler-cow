@@ -1,0 +1,22 @@
+img:hover {
+    filter: drop-shadow(0 0 1em #646cffaa);
+}
+
+img {
+    width: 80px;
+}
+
+.Card {
+    width: fit-content;
+    margin: 5px;
+}
+
+.card_img {
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.clicked {
+    filter: sepia(100%);
+    background-color: chocolate;
+}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
+import Board from "./board";
 
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
@@ -28,6 +29,7 @@ function App() {
         </a>
       </div>
 
+      {/*
       <p>Click on the Tauri, Vite, and React logos to learn more.</p>
 
       <div className="row">
@@ -46,6 +48,11 @@ function App() {
         </form>
       </div>
       <p>{greetMsg}</p>
+        */}
+      <h1>5枚以上のカードを選択してください</h1>
+
+      <Board></Board>
+
     </div>
   );
 }
