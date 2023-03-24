@@ -347,7 +347,7 @@ where
 
     let role_counter = Arc::new(Mutex::new([0; 10]));
     //let use_cards = Arc::new(use_cards);
-    let mut handles = vec![];
+    let mut handles:Vec<thread::JoinHandle<Result<(), anyhow::Error>>> = vec![];
 
     let d = loop_num / (thread_num - 1) as u32;
     let left = loop_num % (thread_num - 1) as u32;
@@ -377,7 +377,7 @@ where
                 //let mut role_counter = role_counter;
 
                 //カードをランダムに5枚選び出す（idのみ）
-                let use_cards = handout_cards(&use_cards).unwrap();
+                let use_cards = handout_cards(&use_cards)?;
 
                 //idからCard型を生成する
                 let mut cards = make_cards_from_id(&use_cards);
@@ -390,8 +390,14 @@ where
 
             }
             
-            role_counter_shere.lock().unwrap().iter_mut().zip(role_counter_exclusiv.iter()).for_each(|(a, b)| *a += *b);
-
+            match role_counter_shere.lock() {
+                Ok(mut r) => r.iter_mut().zip(role_counter_exclusiv.iter()).for_each(|(a, b)| *a += *b),
+                Err(_) => {
+                    return Err(anyhow!("ロック失敗"));
+                }
+            
+            }
+            Ok(())
             // println!("{:?}", role_counter_shere.lock().unwrap());
 
         });
@@ -399,7 +405,12 @@ where
     }
 
     for handle in handles {
-        handle.join().unwrap();
+        match handle.join(){
+            Ok(_) => (),
+            Err(e) => {
+                return Err(anyhow!("スレッドでエラー（エラーハンドリングがわからん）"));
+            }
+        };
     }
 
     let score = calc_score(&role_counter);

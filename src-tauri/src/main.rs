@@ -1,11 +1,11 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use num_cpus;
-use porker::{Card, ResultData};
+use porker::ResultData;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::Instant;
+use tauri::InvokeError;
 
 mod porker;
 
@@ -74,7 +74,7 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn million_porker(request: Request) -> Response {
+fn million_porker(request: Request) -> Result<Response, InvokeError> {
     //use_cards: Vec<u32>, num_of_atempt: u32
     //let use_cards = Card::all_cards_id();
     println!("use_cards: {:?}", request.use_cards);
@@ -87,13 +87,29 @@ fn million_porker(request: Request) -> Response {
         role_count,
         score,
         total_num_of_atempt,
-    } = porker::million_porker_parallel(Arc::new(use_cards), num_of_atempt).unwrap();
-
+    } = match porker::million_porker_parallel(Arc::new(use_cards), num_of_atempt) {
+        Ok(r) => r,
+        Err(e) => {
+            return Err(InvokeError::from_anyhow(e));
+        }
+    };
+    /*
+    let ResultData {
+        role_count,
+        score,
+        total_num_of_atempt,
+    } = porker::million_porker_parallel(Arc::new(use_cards), num_of_atempt)?;
+    */
     let time_ms = instant.elapsed().as_millis();
     println!("time: {:?}", instant.elapsed());
 
     porker::debug_judge_role(&role_count, total_num_of_atempt);
-    Response::new(score, total_num_of_atempt, time_ms, role_count)
+    Ok(Response::new(
+        score,
+        total_num_of_atempt,
+        time_ms,
+        role_count,
+    ))
 }
 
 fn main() {

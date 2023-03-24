@@ -31,15 +31,10 @@ interface Result {
 
 export default function Board() {
     const [active, setActive] = useState<Array<boolean>>(Array(52).fill(false));
-    const [use_cards, setCards] = useState<Array<number>>([]);
     const [input_text, setInputEl] = useState("");
     const [ave_score, setAveScore] = useState(0.0);
     const [max_score, setMaxScore] = useState(0);
-    const [time, setTime] = useState(0);
-    const [request, setRequest] = useState<Request>({
-        num_of_atempt: 0,
-        use_cards: [],
-    });
+
 
 
     const [response, setResponse] = useState<Response>({
@@ -60,7 +55,13 @@ export default function Board() {
         }
     });
 
-    async function porker(use_cards: Array<number>) {
+    async function porker(active: Array<boolean>) {
+        let use_cards: Array<number> = [];
+        for (let id = 0; id < 52; id++) {
+            if (active[id] === true) {
+                use_cards.push(id);
+            }
+        }
         const num = parseInt(input_text);
         if (use_cards.length < 5) {
             alert("5枚以上のカードを選択してください");
@@ -69,26 +70,27 @@ export default function Board() {
             alert("有効な数字を入力してください");
             return;
         }
-        setRequest({ num_of_atempt: num, use_cards: use_cards });
-        console.log(request);
-        const board = await invoke<Response>("million_porker", { request: request });
-        setResponse(board);
-        setAveScore(response.score / response.total_num_of_atempt);
 
-        if (ave_score > max_score) {
-            setMaxScore(ave_score);
-        }
+        const request: Request = { num_of_atempt: num, use_cards: use_cards };
+
+        await invoke<Response>("million_porker", { request: request }).then((board) => {
+            setResponse(board);
+
+            if (response.score === 0 || response.total_num_of_atempt == 0) {
+                setAveScore(0);
+            } else {
+                setAveScore(response.score / response.total_num_of_atempt);
+            }
+            if (ave_score > max_score) {
+                setMaxScore(ave_score);
+            }
+        }).catch(e => {
+            alert(e);
+        })
     }
 
     function clicked(id: number) {
         setActive(active.map((act, index) => (index === id ? !act : act)));
-        if (use_cards[id] === id) {
-            setCards(
-                use_cards.filter((card, index) => (card !== id))
-            )
-        } else {
-            setCards([...use_cards, id]);
-        }
     }
 
     function render_card(id: number) {
@@ -114,9 +116,13 @@ export default function Board() {
             </h3>
 
             <div className="ctr">
-                <button className='bu' onClick={() => porker(use_cards)}>実行する</button>
+                <button className='bu' onClick={() => porker(active)}>実行する</button>
                 <button className='bu' onClick={reset_card_state}>リセット</button>
-                <button className='bu' onClick={() => console.log(active, use_cards)}></button>
+                <button className='bu' onClick={() => {
+                    setActive(Array(52).fill(true))
+                    console.log(active)
+                }
+                }></button>
             </div>
             <div className='score'>
                 <h2>平均スコア！:{ave_score}</h2>
