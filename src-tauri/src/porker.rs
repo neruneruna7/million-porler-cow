@@ -317,6 +317,26 @@ pub fn debug_judge_role(role_count: &[u32; 10], total_num_of_atempt: u32) {
     println!();
 }
 
+// 画面中央に愛をこめてアイコンを表示します．
+pub fn print_icon() {
+    println!(
+        r#"
+    .-.
+   (o o) boo!
+    |O|
+   __| |__
+ /`    |    `\
+/     / \     \
+|     | |     |
+|     |_|     |
+|     = =     |
+\             /
+ \           /
+  `-._____.-'
+"#
+    );
+}
+
 /// 必要な処理がひとまとめになった関数です．
 /// 回数制限，手札選び，役判定，指定回数ループ，スコア計算
 /// 事実上，pubキーワードはこの関数にのみついていれば問題ありません
@@ -369,12 +389,14 @@ where
     for i in v {
         let role_counter_shere = Arc::clone(&role_counter);
         let use_cards = Arc::clone(&use_cards);
+
         let handle = thread::spawn(move || {
             //let mut num = role_counter.lock().unwrap();
             let mut role_counter_exclusiv = [0; 10];
 
             for _ in i {
                 //let mut role_counter = role_counter;
+                //let a = use_cards;
 
                 //カードをランダムに5枚選び出す（idのみ）
                 let use_cards = handout_cards(&use_cards)?;
@@ -408,7 +430,8 @@ where
         match handle.join(){
             Ok(_) => (),
             Err(e) => {
-                return Err(anyhow!("スレッドでエラー（エラーハンドリングがわからん）"));
+                return Err(anyhow!("{:?}", e));
+                //return Err(anyhow!("スレッドでエラー（エラーハンドリングがわからん）"));
             }
         };
     }
